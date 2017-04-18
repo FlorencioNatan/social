@@ -19,6 +19,8 @@
             'csrfToken' => csrf_token(),
         ]) !!};
     </script>
+    <!-- Angular always is called in the top of page -->
+    <script src="{{ asset('js/angular.min.js') }}"></script>
 </head>
 <body>
     <div id="app">
