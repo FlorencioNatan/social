@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Post;
 use Illuminate\Http\Request;
 use Auth;
+use Validator;
+use Redirect;
 
 class UserController extends Controller
 {
@@ -17,6 +20,33 @@ class UserController extends Controller
     {
         $user = Auth::user();
         return view('users.home')->with('user', $user);
+    }
+
+    /**
+     * Store a newly created Post from current user in storage
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function userPost(Request $request)
+    {
+        $rules = array(
+            'title' => 'required',
+            'text' => 'required'
+        );
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return "Fail";
+        }
+
+        $post = new Post();
+        $post->title = $request['title'];
+        $post->text = $request['text'];
+        $post->user_id = Auth::id();
+        $post->created_at  = date("Y-m-d H:i:s");
+        $post->updated_at  = date("Y-m-d H:i:s");
+        $post->save();
+        return $post;
     }
 
     /**
