@@ -19,3 +19,4 @@ Auth::routes();
 
 Route::get('/home', 'UserController@index');
 Route::post('/users/post', 'UserController@userPost')->name('post');
+Route::get('/posts/getComments/{id}','PostController@getComments');

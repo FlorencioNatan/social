@@ -58,12 +58,26 @@
                     </form>
 
                     <div class="row" ng-repeat="post in posts">
-                         <div class="col-md-12">
+                        <div id="@{{post.id}}" class="col-md-12">
                             <h2 ng-bind-html="post.title"></h2>
                             <p align="justify" ng-bind-html="post.text"></p>
-                         </div>
-                       <hr>
+                            <div ng-if="!load[post.id]">
+                                <a href="#@{{post.id}}" ng-click="loadComments(post.id)">Load Comments</a>
+                            </div>
+                            <div ng-if="load[post.id]">
+                                <div class="row" ng-repeat="comment in comments[post.id]">
+                                    <div class="col-md-8 col-md-offset-2">
+                                        <p align="justify" ng-bind-html="comment.text"></p>
+                                        <p align="center" ng-bind-html="comment.user"></p>
+                                        <hr>
+                                    </div>
+                                </div>
+                                <a href="#@{{post.id}}" ng-click="closeComments(post.id)">Close Comments</a>
+                                <hr>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -98,6 +112,12 @@
         var pst = "{{ $user->posts }}";
         pst = pst.replace(/\n/g,"\\n");
         $scope.posts = JSON.parse(pst.replace(/&quot;/g, "\""));
+        $scope.comments = [[]];
+        $scope.load = [];
+        for (var i = 0; i < $scope.posts.length; i++) {
+            var v = $scope.posts[i];
+            $scope.load[v.id] = false;
+        }
 
         $scope.send = function(){
             var data = $.param({
@@ -125,6 +145,28 @@
                     "\nheaders: " + header +
                     "\nconfig: " + config);
             });
+        }
+
+        $scope.loadComments = function(id) {
+            $http.get('{{ URL::to("posts/getComments") }}/'+id)
+            .then(function (responseData, status, headers, config) {
+                $scope.comments[id] = [];
+                var data = responseData['data'];
+                for (var dt in data) {
+                    $scope.comments[id].unshift(data[dt]);
+                }
+                $scope.load[id] = true;
+            },
+            function (data, status, header, config) {
+                alert("Data: " + data +
+                    "\nstatus: " + status +
+                    "\nheaders: " + header +
+                    "\nconfig: " + config);
+            });
+        }
+
+        $scope.closeComments = function(id) {
+            $scope.load[id] = false;
         }
     });
 </script>
